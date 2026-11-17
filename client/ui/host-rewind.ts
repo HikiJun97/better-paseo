@@ -3,6 +3,7 @@ import type { ComponentType } from "react";
 // without it injects the module without the key.
 import * as HostUi from "@getpaseo/plugin/client/ui";
 import { LEGACY_HOST_ENTRY } from "./legacy-host-entry";
+import { BundledRewindMenu } from "./bundled-rewind";
 
 export interface HostRewindMenuProps {
   /** `host.id` from the renderer's props. */
@@ -31,5 +32,7 @@ export function resolveRewindMenu(runtime: unknown): ComponentType<HostRewindMen
 /**
  * Read once: a host provides the menu for the whole session or not at all.
  * Newer patched hosts put it in `client/ui`; older ones only in the old entry.
+ * A stock host gets the menu borrowed from its own bundle (`bundled-rewind`).
  */
-export const HOST_REWIND_MENU = resolveRewindMenu(HostUi) ?? resolveRewindMenu(LEGACY_HOST_ENTRY);
+export const HOST_REWIND_MENU: ComponentType<HostRewindMenuProps> =
+  resolveRewindMenu(HostUi) ?? resolveRewindMenu(LEGACY_HOST_ENTRY) ?? BundledRewindMenu;

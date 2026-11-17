@@ -1,7 +1,8 @@
 /**
  * The prompt's rewind menu comes from the host (Paseo with RewindMenu): newer
  * patched hosts put it in `client/ui`, older ones only in the old
- * `client/react-native` entry. On a stock host neither has it and nothing is drawn.
+ * `client/react-native` entry. On a stock host neither has it and the menu is
+ * borrowed from the host's bundle instead.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import React from "react";
@@ -27,9 +28,10 @@ async function load(menuIn: "none" | "ui" | "legacy") {
 }
 
 describe("host rewind menu", () => {
-  it("is absent on a host without RewindMenu", async () => {
+  it("falls back to the bundled menu on a host without RewindMenu", async () => {
     const { module } = await load("none");
-    expect(module.HOST_REWIND_MENU).toBeNull();
+    const { BundledRewindMenu } = await import("../../client/ui/bundled-rewind");
+    expect(module.HOST_REWIND_MENU).toBe(BundledRewindMenu);
   });
 
   it.each(["ui", "legacy"] as const)("is the host's component where the host provides it in %s", async (menuIn) => {

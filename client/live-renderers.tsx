@@ -869,14 +869,12 @@ function LiveUserMessageRendererBody({
           tokens={tokens}
           compact={layout.compact}
           actions={
-            HOST_REWIND_MENU ? (
-              <HOST_REWIND_MENU
-                hostId={host.id}
-                agentId={agentId}
-                messageId={item.data.messageId}
-                text={item.data.text}
-              />
-            ) : null
+            <HOST_REWIND_MENU
+              hostId={host.id}
+              agentId={agentId}
+              messageId={item.data.messageId}
+              text={item.data.text}
+            />
           }
           footer={
             observedLive ? (
