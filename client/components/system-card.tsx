@@ -110,7 +110,7 @@ export function SystemCard({ envelope, tokens, compact = false }: SystemCardProp
       {sender ?? envelope.title}
     </RowText>
   );
-  const meta: React.ReactNode[] = sender ? ["IRC"] : envelope.chips.map((chip) => chip.value);
+  const meta: React.ReactNode[] = envelope.chips.map((chip) => chip.value);
   if (failed) meta.push(<Text style={{ color: tokens.danger }}>failed</Text>);
 
   return (

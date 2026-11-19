@@ -40,6 +40,7 @@ const TAG_KINDS: Record<string, SystemEnvelopeKind> = {
   "system-interrupt": "reminder",
   "paseo-system": "notice",
   "agent-response": "message",
+  "agent-message": "message",
 };
 
 const TASK_RESULT = /<task-result\b([^>]*)>([\s\S]*?)<\/task-result>/i;
@@ -48,6 +49,9 @@ const PREVIEW = /<preview\b[^>]*>([\s\S]*?)<\/preview>/i;
 const OUTPUT = /<output>([\s\S]*?)<\/output>/i;
 const ATTRIBUTE = /([\w-]+)="([^"]*)"/g;
 const IRC_SENDER = /Incoming IRC message from agent `([^`]+)`:?/i;
+// Claude hands a subagent's final report back as an `<agent-message>` whose
+// first line is this preamble; the harness indents every report line by two.
+const HAND_BACK = /^\[Subagent hand-back\][^\n]*\n?/;
 // A launch line, not any sentence opening with those two words: the verb has
 // to be one the process supervisor actually reports.
 const PROCESS_LINE =
@@ -152,7 +156,17 @@ export function parseSystemEnvelope(text: string): SystemEnvelope | null {
     const sender = inner.match(IRC_SENDER);
     if (sender) {
       const body = inner.slice((sender.index ?? 0) + sender[0].length).trim();
-      return { kind, title: `Message from ${sender[1]}`, chips: [], body, failed: false, sender: sender[1] };
+      const chips = [{ label: "via", value: "IRC" }];
+      return { kind, title: `Message from ${sender[1]}`, chips, body, failed: false, sender: sender[1] };
+    }
+    const from = tag === "agent-message" ? attributes(open?.[0] ?? "").get("from") : undefined;
+    if (from) {
+      const handBack = HAND_BACK.test(inner);
+      const body = handBack
+        ? inner.replace(HAND_BACK, "").split("\n").map((line) => line.replace(/^ {2}/, "")).join("\n").trim()
+        : inner;
+      const chips = [{ label: "via", value: handBack ? "Subagent" : "Agent" }];
+      return { kind, title: `Message from ${from}`, chips, body, failed: false, sender: from };
     }
   }
 
