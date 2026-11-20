@@ -8,6 +8,7 @@
 import {
   InputRule,
   Plugin,
+  Selection,
   TextSelection,
   baseKeymap,
   chainCommands,
@@ -93,12 +94,27 @@ const clearCodeBlock: Command = (state, dispatch) => {
   return setBlockType(nodes.paragraph)(state, dispatch);
 };
 
-/** Backspace at the start of a list item's first line lifts it out of the list. */
-const liftAtItemStart: Command = (state, dispatch) => {
+/**
+ * Backspace at the start of a list item's first line. The item merges into
+ * the line above it: an emptied item disappears and the cursor goes to the
+ * end of that line (the item before, the parent item's line, or the paragraph
+ * above the list), and an item with text joins its text onto it. The first
+ * item of a list, if it has text or nothing is above it, comes out of the
+ * list instead, keeping its text.
+ */
+export const listBackspace: Command = (state, dispatch) => {
   const { $from, empty } = state.selection;
   if (!empty || $from.parentOffset > 0 || $from.depth < 2 || $from.node(-1).type !== nodes.list_item) return false;
   if ($from.index(-1) > 0) return false;
-  return liftListItem(nodes.list_item)(state, dispatch);
+  const emptied = $from.node(-1).childCount === 1 && $from.parent.content.size === 0;
+  const firstInList = $from.index(-2) === 0;
+  const above = Selection.findFrom(state.doc.resolve($from.before(-1)), -1, true);
+  if (!above || (firstInList && !emptied)) return liftListItem(nodes.list_item)(state, dispatch);
+  if (dispatch) {
+    const tr = state.tr.delete(above.from, $from.pos);
+    dispatch(tr.setSelection(TextSelection.create(tr.doc, above.from)).scrollIntoView());
+  }
+  return true;
 };
 
 /** ArrowDown at the end of a trailing code block opens a paragraph below it. */
@@ -126,9 +142,8 @@ const keys = keymap({
   Enter: newLine,
   Tab: sinkListItem(nodes.list_item),
   // No Shift-Tab: Paseo's mode-cycle shortcut takes it on the window before
-  // the editor sees it. An item comes out with Backspace at its start, or
-  // Shift+Enter on an empty one.
-  Backspace: chainCommands(undoInputRule, clearCodeBlock, liftAtItemStart),
+  // the editor sees it. Shift+Enter on an empty item takes it out a level.
+  Backspace: chainCommands(undoInputRule, clearCodeBlock, listBackspace),
   ArrowDown: exitTrailingCode,
   ArrowRight: exitTrailingCode,
   "Mod-z": undo,

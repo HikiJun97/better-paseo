@@ -65,7 +65,7 @@ with the editor, and offers it the keys Paseo handles (`client/composer/bridge.t
 | Cannot | Instead | Waiting on |
 | --- | --- | --- |
 | Format the prompt on iOS and Android. The composer is a native text field there. | The phone keeps Paseo's text field; the Markdown typed still reaches the agent. | no host API |
-| Outdent a list item with Shift+Tab. Paseo's mode-cycle shortcut takes the key before the editor sees it. | Backspace at the start of an item, or Shift+Enter on an empty one, takes it out of its list. | no host API |
+| Outdent a list item with Shift+Tab. Paseo's mode-cycle shortcut takes the key before the editor sees it. | Shift+Enter on an empty item takes it out one level; Backspace at the start of a list's first item takes it out of the list. | no host API |
 | Count as the focused composer for a plugin's `composer.focus()`. Paseo checks that the textarea itself has focus, so the promise rejects after 1.5 s although the editor has the cursor. | Paseo's own focus (Cmd+L, after send, autofocus) reaches the editor. | no host API |
 | Turn links in pasted HTML into Markdown, as Paseo's text field does. | Text is pasted as plain lines, as claude.ai pastes it; images still become attachments. | no host API |
 

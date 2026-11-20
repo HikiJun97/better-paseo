@@ -57,7 +57,7 @@ Better Paseo 只能画 Paseo 插件 SDK 允许插件画的东西。下面列出�
 | 做不到 | 现在的做法 | 等待 |
 | --- | --- | --- |
 | 在 iOS 和 Android 上排版提示词。那里的输入框是原生文本框。 | 手机上保留 Paseo 的输入框，输入的 Markdown 照样发给 agent。 | 没有宿主 API |
-| 用 Shift+Tab 把列表项往外缩。Paseo 的切换模式快捷键会先拿走这个按键。 | 在列表项开头按 Backspace，或在空项上按 Shift+Enter，即可移出列表。 | 没有宿主 API |
+| 用 Shift+Tab 把列表项往外缩。Paseo 的切换模式快捷键会先拿走这个按键。 | 在空项上按 Shift+Enter 会往外移一级；在列表第一项的开头按 Backspace 会把它移出列表。 | 没有宿主 API |
 | 让插件的 `composer.focus()` 把编辑器当作已聚焦的输入框。Paseo 检查的是 textarea 本身有没有焦点，所以即使光标在编辑器里，这个 promise 也会在 1.5 秒后被拒绝。 | Paseo 自己的聚焦（Cmd+L、发送后、自动聚焦）会落到编辑器上。 | 没有宿主 API |
 | 像 Paseo 的输入框那样把粘贴的 HTML 链接转成 Markdown。 | 文本按纯文本逐行粘贴，和 claude.ai 一样；图片仍会变成附件。 | 没有宿主 API |
 
