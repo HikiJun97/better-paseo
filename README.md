@@ -875,6 +875,7 @@ and hides the Tool calls, Spacing, Messages and Hover previews groups. The Tasks
 | Messages | Let genui render interactive replies | Off | Hands replies with `ui` or `app` code blocks to another renderer. Without one, Paseo shows ordinary Markdown without the plugin reply footer. |
 | Messages | Markdown style | Document | Document, Compact or Terminal (body in the code font). |
 | Messages | Selection toolbar | On | Web and desktop: Copy and Add to chat on selected text; the bar closes on scroll. |
+| Messages | Rich composer | On | Web and desktop: the composer formats as you type, like claude.ai's prompt input. `-`, `*` or `+` and a space start a bulleted list, `1.` a numbered one, Tab nests an item, ```` ``` ```` and a space (or Shift+Enter) a code block; `` `code` `` and `~~text~~` format inline. Paseo still gets Markdown text, so send, recall, `/` and `@` autocomplete and image paste work as before. iOS and Android keep Paseo's text field. |
 | Hover previews | Hover previews | On | Preview collapsed rows and paths on desktop hover; with block details off, long-press a collapsed row on a touch screen. |
 | Hover previews | Block details panel (preview) | On | On a touch screen a tap opens a row's [details](#block-details) in a drawer or panel, and a long press shows the row's actions; on desktop the hover preview and right-click menu open the panel. Off, a tap expands the row and a long press previews it. |
 | Hover previews | Delay | 1 s | 0–10 s, saved to tenths of a second, before the desktop preview opens. Web and desktop only. |

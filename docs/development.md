@@ -119,7 +119,9 @@ What must not reach client code, including client dependencies:
 
 - **No `class` in any form**: declarations, expressions, fields, private
   members, or static blocks. Use closures and plain objects. This is why
-  `marked` cannot be imported on the client.
+  `marked` cannot be imported on the client, and why ProseMirror reaches it
+  only through `client/vendor/prosemirror.js`, lowered the same way
+  (`tools/vendor-prosemirror`).
 - No regular-expression `v` flag (a compile error, so the check catches it).
 - No `Array.prototype.toSorted` and no `Intl.Segmenter`. Both are missing at
   runtime rather than at compile time, so the check only catches them when

@@ -56,6 +56,19 @@ Archive needs no workaround: it uses the plugin API.
 | Keep a plugin screen while the phone is disconnected. Paseo removes every plugin when the connection drops and sends all their bundles again on reconnect, so an open board shows "This plugin surface is unavailable." until it is back. | The board returns with its cards, lane and filters; the bundle is minified and the board loads on demand, so the catalog fell from 1,977 KB to 722 KB (measured on a Paseo 0.12 daemon when the change landed). | [#7088](https://github.com/getpaseo/paseo/issues/7088) (issue), [#6731](https://github.com/getpaseo/paseo/pull/6731), [#6732](https://github.com/getpaseo/paseo/pull/6732), open |
 | Keep a setting per device. Plugin settings are host-wide only. | Every client of a daemon shares one set, the drawer's pinch size included. | nothing filed |
 
+## In the composer
+
+The rich composer replaces Paseo's composer text field by going around the SDK, which only lets a
+plugin read and write the prompt as text (`useComposer`). It hides the textarea, keeps it in step
+with the editor, and offers it the keys Paseo handles (`client/composer/bridge.ts`).
+
+| Cannot | Instead | Waiting on |
+| --- | --- | --- |
+| Format the prompt on iOS and Android. The composer is a native text field there. | The phone keeps Paseo's text field; the Markdown typed still reaches the agent. | no host API |
+| Outdent a list item with Shift+Tab. Paseo's mode-cycle shortcut takes the key before the editor sees it. | Backspace at the start of an item, or Shift+Enter on an empty one, takes it out of its list. | no host API |
+| Count as the focused composer for a plugin's `composer.focus()`. Paseo checks that the textarea itself has focus, so the promise rejects after 1.5 s although the editor has the cursor. | Paseo's own focus (Cmd+L, after send, autofocus) reaches the editor. | no host API |
+| Turn links in pasted HTML into Markdown, as Paseo's text field does. | Text is pasted as plain lines, as claude.ai pastes it; images still become attachments. | no host API |
+
 The SDK constraints met while building the plugin, with evidence and workarounds, are listed for
 developers in [`docs/plugin-sdk-limitations.md`](plugin-sdk-limitations.md).
 

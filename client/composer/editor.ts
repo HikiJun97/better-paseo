@@ -125,7 +125,9 @@ const keys = keymap({
   "Shift-Enter": newLine,
   Enter: newLine,
   Tab: sinkListItem(nodes.list_item),
-  "Shift-Tab": liftListItem(nodes.list_item),
+  // No Shift-Tab: Paseo's mode-cycle shortcut takes it on the window before
+  // the editor sees it. An item comes out with Backspace at its start, or
+  // Shift+Enter on an empty one.
   Backspace: chainCommands(undoInputRule, clearCodeBlock, liftAtItemStart),
   ArrowDown: exitTrailingCode,
   ArrowRight: exitTrailingCode,

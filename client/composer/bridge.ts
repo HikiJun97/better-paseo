@@ -25,10 +25,9 @@
  * `composer.focus()` promise among them); those still see the editor as
  * unfocused. See docs/limitations.md.
  */
-import { EditorState, EditorView, Slice, TextSelection, liftListItem, type Transaction } from "../vendor/prosemirror";
+import { EditorState, EditorView, Slice, TextSelection, type Transaction } from "../vendor/prosemirror";
 import { composerPlugins } from "./editor";
 import {
-  composerSchema,
   literalDoc,
   offsetForPos,
   parseComposerText,
@@ -280,18 +279,6 @@ export function attachRichComposer(textarea: HTMLTextAreaElement): () => void {
   textarea.focus = () => view.focus();
   textarea.blur = () => view.dom.blur();
 
-  // Shift+Tab is Paseo's mode cycle, caught on the document in the capture
-  // phase before the editor sees it. Inside a list it outdents instead, as in
-  // claude.ai, so the editor takes it first from the window's capture phase.
-  const outdentFirst = (event: KeyboardEvent) => {
-    if (event.key !== "Tab" || !event.shiftKey || event.altKey || event.metaKey || event.ctrlKey) return;
-    if (event.isComposing || !(event.target instanceof Node) || !view.dom.contains(event.target)) return;
-    if (!liftListItem(composerSchema.nodes.list_item)(view.state, view.dispatch)) return;
-    event.preventDefault();
-    event.stopPropagation();
-  };
-  window.addEventListener("keydown", outdentFirst, true);
-
   /** Placeholder, colours and type, taken from the textarea it replaces. */
   const syncLook = () => {
     const computed = getComputedStyle(textarea);
@@ -334,7 +321,6 @@ export function attachRichComposer(textarea: HTMLTextAreaElement): () => void {
   if (document.activeElement === textarea) view.focus();
 
   return () => {
-    window.removeEventListener("keydown", outdentFirst, true);
     attributes.disconnect();
     view.destroy();
     host.remove();
