@@ -5,6 +5,7 @@ import {
   parseComposerText,
   posForOffset,
   serializeComposer,
+  serializeFragment,
 } from "../../client/composer/markdown";
 
 const { nodes, marks } = composerSchema;
@@ -138,5 +139,16 @@ describe("positions", () => {
   it("snaps an offset inside a marker to the start of the item's text", () => {
     expect(posForOffset(segments, 0)).toBe(posOf("a"));
     expect(posForOffset(segments, 1)).toBe(posOf("a"));
+  });
+});
+
+describe("serializeFragment (copy)", () => {
+  it("copies whole list items with their markers and numbers", () => {
+    const list = nodes.ordered_list.create({ start: 2 }, [li(p(text("a"))), li(p(text("b")))]);
+    expect(serializeFragment(doc(list).content)).toBe("2. a\n3. b");
+  });
+
+  it("copies part of one line with its inline code delimiters", () => {
+    expect(serializeFragment(p(text("run "), text("npm test", "code")).content)).toBe("run `npm test`");
   });
 });

@@ -87,11 +87,24 @@ const fenceToCodeBlock: Command = (state, dispatch) => {
   return true;
 };
 
-/** Backspace at the start of an empty code block turns it back into a paragraph. */
-const clearCodeBlock: Command = (state, dispatch) => {
+/**
+ * Backspace at the start of an empty code block turns it back into a
+ * paragraph, and drops the empty paragraph `toCodeBlock` left after it.
+ */
+export const clearCodeBlock: Command = (state, dispatch) => {
   const { $from, empty } = state.selection;
   if (!empty || $from.parent.type !== nodes.code_block || $from.parent.content.size > 0) return false;
-  return setBlockType(nodes.paragraph)(state, dispatch);
+  if (!setBlockType(nodes.paragraph)(state)) return false;
+  if (dispatch) {
+    const tr = state.tr.setBlockType($from.pos, $from.pos, nodes.paragraph);
+    const after = $from.after();
+    const next = tr.doc.resolve(after).nodeAfter;
+    if ($from.depth === 1 && next?.type === nodes.paragraph && next.content.size === 0 && after + next.nodeSize === tr.doc.content.size) {
+      tr.delete(after, after + next.nodeSize);
+    }
+    dispatch(tr);
+  }
+  return true;
 };
 
 /**

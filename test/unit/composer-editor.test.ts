@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EditorState, TextSelection, type Transaction } from "../../client/vendor/prosemirror";
-import { listBackspace } from "../../client/composer/editor";
+import { clearCodeBlock, listBackspace } from "../../client/composer/editor";
 import { parseComposerText, serializeComposer } from "../../client/composer/markdown";
 
 /** A state for `text` with the cursor at text offset `cursor`. */
@@ -13,9 +13,9 @@ function stateAt(text: string, cursor: number): EditorState {
 }
 
 /** Runs Backspace; returns the text after it and the cursor's text offset, or null when it did nothing. */
-function backspace(text: string, cursor: number): { text: string; cursor: number } | null {
+function backspace(text: string, cursor: number, command = listBackspace): { text: string; cursor: number } | null {
   let next: Transaction | null = null;
-  const handled = listBackspace(stateAt(text, cursor), (tr) => { next = tr; });
+  const handled = command(stateAt(text, cursor), (tr) => { next = tr; });
   if (!handled || !next) return null;
   const doc = (next as Transaction).doc;
   const serialized = serializeComposer(doc);
@@ -52,5 +52,20 @@ describe("Backspace at the start of a list item", () => {
 
   it("leaves Backspace inside an item's text to the default", () => {
     expect(backspace("1. one", 4)).toBeNull();
+  });
+});
+
+describe("Backspace in an empty code block", () => {
+  it("turns it back into a line and drops the empty line the block opened below it", () => {
+    // "```\n\n```\n" is an empty code block followed by an empty line; the cursor is inside the block.
+    expect(backspace("```\n\n```\n", 4, clearCodeBlock)).toEqual({ text: "", cursor: 0 });
+  });
+
+  it("keeps a following line that has text", () => {
+    expect(backspace("```\n\n```\nafter", 4, clearCodeBlock)).toEqual({ text: "\nafter", cursor: 0 });
+  });
+
+  it("does nothing in a code block that still has code", () => {
+    expect(backspace("```\nx\n```", 4, clearCodeBlock)).toBeNull();
   });
 });

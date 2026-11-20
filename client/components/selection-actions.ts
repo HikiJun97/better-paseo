@@ -171,6 +171,10 @@ export function insertIntoComposer(snippet: string, from: Element | null): boole
   const next = head + insert + before.slice(end);
   const caret = head.length + insert.length;
 
+  // A composer with the rich editor (`composer/bridge.ts`) inserts it itself.
+  const rich = new CustomEvent("bp-rich-composer-insert", { detail: { text: insert, start, end }, cancelable: true });
+  if (!input.dispatchEvent(rich)) return true;
+
   input.focus();
   input.setSelectionRange(start, end);
   if (document.execCommand("insertText", false, insert) && input.value === next) {

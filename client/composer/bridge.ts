@@ -29,6 +29,7 @@ import { EditorState, EditorView, Slice, TextSelection, type Transaction } from 
 import { composerPlugins } from "./editor";
 import {
   literalDoc,
+  serializeFragment,
   offsetForPos,
   parseComposerText,
   posForOffset,
@@ -37,6 +38,17 @@ import {
 } from "./markdown";
 
 const STYLE_ID = "bp-rich-composer-style";
+
+/**
+ * Event a composer textarea with an editor answers by inserting `text` (Markdown)
+ * in place of the text offsets [start, end); it cancels the event when done.
+ */
+export const RICH_COMPOSER_INSERT = "bp-rich-composer-insert";
+export interface RichComposerInsert {
+  text: string;
+  start: number;
+  end: number;
+}
 const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 
 const STYLE = `
@@ -211,6 +223,9 @@ export function attachRichComposer(textarea: HTMLTextAreaElement): () => void {
         event.preventDefault();
         return true;
       }
+      // Copied from this editor (or another ProseMirror one): its structure
+      // parses with the composer's schema, so lists and code stay formatted.
+      if (data.getData("text/html").includes("data-pm-slice")) return false;
       const text = data.getData("text/plain");
       if (!text) return false;
       event.preventDefault();
@@ -223,7 +238,7 @@ export function attachRichComposer(textarea: HTMLTextAreaElement): () => void {
       editorView.dispatch(state.tr.replaceSelection(new Slice(lines, 1, 1)).scrollIntoView());
       return true;
     },
-    clipboardTextSerializer: (slice) => slice.content.textBetween(0, slice.content.size, "\n", "\n"),
+    clipboardTextSerializer: (slice) => serializeFragment(slice.content),
     handleDOMEvents: {
       focus: () => {
         textarea.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
@@ -278,6 +293,21 @@ export function attachRichComposer(textarea: HTMLTextAreaElement): () => void {
   textarea.setSelectionRange = setSelectionRange;
   textarea.focus = () => view.focus();
   textarea.blur = () => view.dom.blur();
+
+  // Better Paseo's own Add to chat (`components/selection-actions.ts`) writes
+  // the textarea the way it would a plain one, which this editor cannot see;
+  // for a composer with an editor it asks here instead.
+  const insertRequested = (event: Event) => {
+    const { text, start, end } = (event as CustomEvent<RichComposerInsert>).detail;
+    const from = posForOffset(segments, start);
+    const to = posForOffset(segments, end);
+    const content = parseComposerText(text).content;
+    const tr = view.state.tr.replaceRange(from, to, new Slice(content, 1, 1));
+    view.dispatch(tr.scrollIntoView());
+    view.focus();
+    event.preventDefault();
+  };
+  textarea.addEventListener(RICH_COMPOSER_INSERT, insertRequested);
 
   // The textarea's box, read once: hiding it below overrides its padding and size.
   const box = getComputedStyle(textarea);
@@ -336,6 +366,7 @@ export function attachRichComposer(textarea: HTMLTextAreaElement): () => void {
   if (document.activeElement === textarea) view.focus();
 
   return () => {
+    textarea.removeEventListener(RICH_COMPOSER_INSERT, insertRequested);
     attributes.disconnect();
     view.destroy();
     host.remove();

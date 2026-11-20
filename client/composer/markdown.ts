@@ -14,7 +14,7 @@
  * promise for every input: when its reading would not serialise back to the
  * exact text it was given, it returns the text as literal paragraphs instead.
  */
-import { Schema, type Node as PMNode } from "../vendor/prosemirror";
+import { Schema, type Fragment, type Node as PMNode } from "../vendor/prosemirror";
 
 export const composerSchema = new Schema({
   nodes: {
@@ -168,6 +168,22 @@ export function serializeComposer(doc: PMNode): SerializedComposer {
   });
 
   return { text: lines.join("\n"), segments };
+}
+
+/**
+ * The text a copied part of the editor puts on the clipboard: Markdown, as
+ * the prompt would be sent, so a copied list keeps its markers. A part that
+ * is not whole blocks (inside one line, say) is read as one line.
+ */
+export function serializeFragment(content: Fragment): string {
+  for (const wrap of [(inner: Fragment) => inner, (inner: Fragment) => NODES.paragraph.create(null, inner)]) {
+    try {
+      return serializeComposer(NODES.doc.createChecked(null, wrap(content))).text;
+    } catch {
+      // Not that shape; try the next.
+    }
+  }
+  return content.textBetween(0, content.size, "\n", "\n");
 }
 
 /** A fence longer than any backtick run inside the code. */
