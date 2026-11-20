@@ -279,33 +279,48 @@ export function attachRichComposer(textarea: HTMLTextAreaElement): () => void {
   textarea.focus = () => view.focus();
   textarea.blur = () => view.dom.blur();
 
+  // The textarea's box, read once: hiding it below overrides its padding and size.
+  const box = getComputedStyle(textarea);
+  for (const name of ["padding-top", "padding-right", "padding-bottom", "padding-left"]) {
+    host.style.setProperty(name, box.getPropertyValue(name));
+  }
+  host.style.setProperty("min-height", box.minHeight === "0px" ? `${textarea.offsetHeight || 0}px` : box.minHeight);
+  host.style.setProperty("max-height", "max(160px, 50vh)");
+  host.style.setProperty("width", "100%");
+  // Paseo sizes every child of the composer's input wrapper to the height it
+  // measured for the textarea (`.unistyles_... > * { height }`); the editor
+  // takes the height of its own content instead.
+  host.style.setProperty("height", "auto", "important");
+  host.style.setProperty("flex", "0 0 auto", "important");
+
   /** Placeholder, colours and type, taken from the textarea it replaces. */
   const syncLook = () => {
     const computed = getComputedStyle(textarea);
     const placeholderColor = getComputedStyle(textarea, "::placeholder").color;
     placeholder = textarea.placeholder ?? "";
     label = textarea.getAttribute("aria-label") ?? placeholder;
-    for (const name of ["font-size", "line-height", "font-weight", "letter-spacing", "color", "padding-top", "padding-right", "padding-bottom", "padding-left"]) {
+    for (const name of ["font-size", "line-height", "font-weight", "letter-spacing", "color"]) {
       host.style.setProperty(name, computed.getPropertyValue(name));
     }
     host.style.setProperty("--bp-rc-placeholder", placeholderColor || computed.color);
     host.style.setProperty("--bp-rc-muted", placeholderColor || computed.color);
-    host.style.setProperty("min-height", computed.minHeight === "0px" ? `${textarea.offsetHeight || 0}px` : computed.minHeight);
-    host.style.setProperty("max-height", "max(160px, 50vh)");
-    host.style.setProperty("width", "100%");
-    host.style.setProperty("flex", "1 1 auto");
     view.setProps({});
   };
   syncLook();
 
-  // Hidden, but on screen to code that looks for a visible composer.
+  // Hidden, but on screen to code that looks for a visible composer. No
+  // width: Paseo measures the textarea's text at its width to size the
+  // composer, and skips the measurement when the width is 0 (a 1px width made
+  // every character a line, and the composer grew with each keystroke).
   const hiddenStyle: [string, string][] = [
     ["position", "absolute"],
     ["opacity", "0"],
     ["pointer-events", "none"],
-    ["width", "1px"],
+    ["width", "0"],
     ["height", "1px"],
     ["min-height", "0"],
+    ["padding", "0"],
+    ["border-width", "0"],
     ["overflow", "hidden"],
   ];
   const previousStyle = hiddenStyle.map(([name]) => [name, textarea.style.getPropertyValue(name), textarea.style.getPropertyPriority(name)] as const);

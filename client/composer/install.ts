@@ -16,6 +16,8 @@ import { Platform } from "react-native";
 import { chunkNow, requestChunkLater, subscribeChunk } from "../tasks/chunk/load";
 
 const COMPOSER_TEXTAREA = "textarea[data-composer-input]";
+/** Marks a textarea that already has an editor, from this copy of the plugin or another. */
+const OWNED = "data-bp-rich-composer-owned";
 
 export function installRichComposer(): () => void {
   if (Platform.OS !== "web" || typeof document === "undefined") return () => {};
@@ -32,9 +34,16 @@ export function installRichComposer(): () => void {
       bridges.delete(textarea);
     }
     document.querySelectorAll<HTMLTextAreaElement>(COMPOSER_TEXTAREA).forEach((textarea) => {
-      if (bridges.has(textarea)) return;
+      // Each connected host loads its own copy of the plugin into the page;
+      // the first to reach a composer takes it.
+      if (bridges.has(textarea) || textarea.hasAttribute(OWNED)) return;
       try {
-        bridges.set(textarea, attachRichComposer(textarea));
+        const detach = attachRichComposer(textarea);
+        textarea.setAttribute(OWNED, "");
+        bridges.set(textarea, () => {
+          detach();
+          textarea.removeAttribute(OWNED);
+        });
       } catch (error) {
         // That composer stays Paseo's plain textarea.
         console.warn("[better-paseo] rich composer could not attach", error);
