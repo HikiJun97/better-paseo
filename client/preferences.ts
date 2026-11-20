@@ -148,6 +148,13 @@ export interface EnhancerPreferences {
    */
   selectionActions: boolean;
   /**
+   * The composer formats the prompt as it is typed (lists, code blocks, inline
+   * code, strikethrough), the way claude.ai's prompt input does
+   * (`client/composer/`). Web and desktop only: iOS and Android keep Paseo's
+   * native text field, which a plugin cannot replace.
+   */
+  richComposer: boolean;
+  /**
    * The plugin's own markdown rendering for assistant replies. Off hands the
    * turn back to Paseo's renderer, which is the safety valve: the plugin
    * cannot import the host markdown pipeline, so its version is a reasonable
@@ -240,6 +247,7 @@ export const DEFAULT_PREFERENCES: Readonly<EnhancerPreferences> = {
   timelineLevel: "standard",
   enhancedUserBubble: false,
   selectionActions: true,
+  richComposer: true,
   assistantMarkdown: true,
   liveUiReplies: false,
   markdownVariant: "document",

@@ -1231,6 +1231,21 @@ export function BetterPaseoSettingsPage({ theme, layout, host }: PluginSurfacePr
             look={look}
           />
         )}
+        {native ? null : (
+          <SettingRow
+            title={t.richComposerTitle}
+            description={t.richComposerDescription}
+            control={
+              <Toggle
+                value={preferences.richComposer}
+                onChange={(richComposer) => updateEnhancerPreferences({ richComposer })}
+                label={t.richComposerTitle}
+                look={look}
+              />
+            }
+            look={look}
+          />
+        )}
       </Section>
 
       <Section title={t.sectionPreview} look={look} hidden={!chat}>

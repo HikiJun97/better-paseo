@@ -27,6 +27,7 @@ vi.mock("../../client/live-renderers", () => ({
 }));
 vi.mock("../../client/settings-screen", () => ({ contributeSettingsScreen: () => () => {} }));
 vi.mock("../../client/tasks/contribute", () => ({ contributeTasks: () => () => {} }));
+vi.mock("../../client/composer/install", () => ({ installRichComposer: () => () => {} }));
 
 type Transform = (input: { item: unknown; phase: string }) => { items: unknown[] } | undefined;
 type Registration = { id: string; transform: Transform; removed: boolean };

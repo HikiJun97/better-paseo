@@ -1,0 +1,32 @@
+{
+  "name": "bc-vendor-prosemirror",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DEV-ONLY: regenerates client/vendor/prosemirror.js, a class-free build of ProseMirror for the Hermes runtime",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "@babel/core": "7.29.0",
+    "@babel/plugin-transform-class-properties": "7.28.6",
+    "@babel/plugin-transform-class-static-block": "7.28.6",
+    "@babel/plugin-transform-classes": "7.28.6",
+    "@babel/plugin-transform-private-methods": "7.28.6",
+    "@babel/plugin-transform-private-property-in-object": "7.28.6",
+    "esbuild": "0.28.2",
+    "orderedmap": "2.1.1",
+    "prosemirror-commands": "1.7.2",
+    "prosemirror-history": "1.5.2",
+    "prosemirror-inputrules": "1.7.0",
+    "prosemirror-keymap": "1.2.3",
+    "prosemirror-model": "1.25.13",
+    "prosemirror-schema-list": "1.6.1",
+    "prosemirror-state": "1.4.4",
+    "prosemirror-transform": "1.12.7",
+    "prosemirror-view": "1.43.0",
+    "rope-sequence": "1.3.4",
+    "w3c-keyname": "2.2.8"
+  }
+}

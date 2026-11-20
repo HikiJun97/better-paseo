@@ -22,6 +22,9 @@ export { prefetchBoardFromCommand, releaseBoardPrefetch } from "../board/prefetc
 export { TasksSettingsPanel } from "../settings/tasks-panel";
 // Better Paseo's settings page (chat options and the board's), opened from the host's settings.
 export { BetterPaseoSettingsPage } from "../../settings-page";
+// The rich composer's editor (ProseMirror, ~250 KB): web only, so it rides here
+// instead of in the catalog every phone downloads on reconnect (`composer/install.ts`).
+export { attachRichComposer } from "../../composer/bridge";
 
 /** Points the data layer at this host's plugin server; returns the cleanup. */
 export function startTasksData(client: PluginClientContext): () => void {

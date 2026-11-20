@@ -176,6 +176,9 @@ const en = {
   selectionTitle: "Selection toolbar",
   selectionDescription:
     "Selecting text in a card shows Copy and Add to chat. Add to chat quotes the selection in the composer, or fences it when it came from code.",
+  richComposerTitle: "Rich composer",
+  richComposerDescription:
+    "Formats the prompt as you type, like claude.ai: - or 1. starts a list, ``` a code block, `code` and ~~text~~ format inline. Paseo still receives Markdown text.",
 
   sectionPreview: "Hover previews",
   hoverPreviewTitle: "Hover previews",
@@ -433,6 +436,8 @@ const zh: SettingsStrings = {
   markdownTerminal: "终端",
   selectionTitle: "选中文字工具栏",
   selectionDescription: "在卡片里选中文字后显示“复制”和“添加到对话”。添加到对话会把选中内容作为引用放进输入框，选自代码时放成代码块。",
+  richComposerTitle: "富文本输入框",
+  richComposerDescription: "像 claude.ai 一样边输入边排版：- 或 1. 开始列表，``` 开始代码块，`code` 和 ~~文字~~ 显示为行内格式。Paseo 收到的仍是 Markdown 文本。",
 
   sectionPreview: "悬停预览",
   hoverPreviewTitle: "悬停预览",

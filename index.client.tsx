@@ -4,6 +4,7 @@ import { contributeSettingsScreen } from "./client/settings-screen";
 import { PluginUpdateIndicator } from "./client/plugin-update-indicator";
 import { removeEmbeddedFonts, setEmbeddedFontLoader } from "./client/components/embed-fonts";
 import { installChatFind } from "./client/components/chat-find";
+import { installRichComposer } from "./client/composer/install";
 import { installPointerFocusRing } from "./client/components/focus-ring";
 import { extractPromptImages } from "./client/prompt-images";
 import { getEnhancerPreferences } from "./client/preferences";
@@ -312,6 +313,14 @@ export default function contribute(client: PluginClientContext) {
   // The Tasks board: a screen, its sidebar entry and a Command Center item;
   // its options are the Tasks half of the settings page (docs/tasks-board.md).
   const removeTasks = contributeTasks(client);
+  // Messages -> Rich composer (web and desktop): claude.ai-style formatting
+  // while typing. Its editor comes in the Tasks chunk, so this follows the
+  // chunk's client set above. Its row sits in the chat settings, so it also
+  // follows the chat switch.
+  const removeRichComposer = followPreference(
+    (preferences) => preferences.chatEnabled && preferences.richComposer,
+    () => (getEnhancerPreferences().chatEnabled && getEnhancerPreferences().richComposer ? installRichComposer() : () => {}),
+  );
 
   // Bench builds send this load's timing marks to the daemon machine.
   const stopLoadTrace = scheduleLoadTraceDump(client);
@@ -329,6 +338,7 @@ export default function contribute(client: PluginClientContext) {
     removeFonts();
     setMarkLoader(null);
     removeFocusRing();
+    removeRichComposer();
     removeChatFind();
     removeNotificationTransformer();
     removeToolTransformer();

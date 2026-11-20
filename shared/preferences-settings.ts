@@ -161,6 +161,7 @@ export const preferencesSchema = z.preprocess((raw) => migrateHoverDelay(migrate
   timelineLevel: z.enum(TIMELINE_LEVELS).catch("standard"),
   enhancedUserBubble: flag(false),
   selectionActions: flag(true),
+  richComposer: flag(true),
   assistantMarkdown: flag(true),
   liveUiReplies: flag(false),
   markdownVariant: z.enum(MARKDOWN_VARIANTS_STORED).catch("document"),
