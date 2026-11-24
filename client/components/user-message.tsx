@@ -6,7 +6,7 @@ import { useCopy } from "../ui/use-copy";
 import { useInputCapabilities } from "../ui/use-input-capabilities";
 import { FadeIn } from "../ui/fade-in";
 import { formatStamp } from "../ui/time";
-import { contentTextProps, contentTextStyle } from "../ui/content-text";
+import { MarkdownView } from "./markdown/markdown-view";
 import { TYPE } from "../ui/tokens/typography";
 import { unselectable } from "./selection";
 import type { ExtendedThemeTokens } from "./theme-tokens";
@@ -91,7 +91,6 @@ export function UserMessage({
   const capabilities = useInputCapabilities(compact);
 
   const styles = useMemo(() => {
-    const size = tokens.typography.content.size;
     return StyleSheet.create({
       column: {
         alignSelf: "flex-end",
@@ -106,12 +105,6 @@ export function UserMessage({
         // The square tail marks the turn's owner, matching the native stream.
         borderTopRightRadius: radiusV2.bubbleTail,
         backgroundColor: tokens.userSurface,
-      },
-      text: {
-        fontFamily: tokens.fontUi,
-        fontSize: size,
-        lineHeight: Math.round(size * 1.4),
-        color: tokens.userText,
       },
       imageRow: {
         marginTop: space.sm,
@@ -162,9 +155,8 @@ export function UserMessage({
       style={styles.column}
     >
       <View style={styles.bubble}>
-        <Text selectable {...contentTextProps()} style={[styles.text, contentTextStyle()]}>
-          {text}
-        </Text>
+        {/* Drawn as Markdown, as the composer writes it; Copy keeps the raw text. */}
+        <MarkdownView text={text} tokens={tokens} variant="document" compact={compact} />
         {images?.length ? (
           <View style={styles.imageRow}>
             {images.map((uri) => (

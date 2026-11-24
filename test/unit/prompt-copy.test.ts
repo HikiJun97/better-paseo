@@ -100,4 +100,20 @@ it("keeps the prompt's Copy visible and enabled on a hover device, unhovered", a
   });
   expect(renderer!.root.findAll((node) => node.props.testID === "rewind")).toHaveLength(1);
   act(() => renderer!.unmount());
+
+  // The prompt is drawn as Markdown: the markers do not show.
+  act(() => {
+    renderer = TestRenderer.create(
+      React.createElement(UserMessage, { text: "**굵게** 그리고 `코드`", timestamp: new Date(), tokens }),
+    );
+  });
+  const shown = renderer!.root
+    .findAll((node) => (node.type as unknown) === "Text")
+    .flatMap((node) => React.Children.toArray(node.props.children))
+    .filter((child): child is string => typeof child === "string")
+    .join("");
+  expect(shown).toContain("굵게");
+  expect(shown).not.toContain("**");
+  expect(shown).not.toContain("`");
+  act(() => renderer!.unmount());
 });
