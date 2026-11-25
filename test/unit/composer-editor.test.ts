@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EditorState, TextSelection, type Transaction } from "../../client/vendor/prosemirror";
-import { clearCodeBlock, listBackspace } from "../../client/composer/editor";
+import { clearCodeBlock, exitLeadingCode, listBackspace } from "../../client/composer/editor";
 import { parseComposerText, serializeComposer } from "../../client/composer/markdown";
 
 /** A state for `text` with the cursor at text offset `cursor`. */
@@ -67,5 +67,23 @@ describe("Backspace in an empty code block", () => {
 
   it("does nothing in a code block that still has code", () => {
     expect(backspace("```\nx\n```", 4, clearCodeBlock)).toBeNull();
+  });
+});
+
+describe("ArrowUp on the first line of a leading code block", () => {
+  it("opens an empty line above the block and moves the cursor there", () => {
+    expect(backspace("```\nfirst\nsecond\n```", 6, exitLeadingCode)).toEqual({ text: "\n```\nfirst\nsecond\n```", cursor: 0 });
+  });
+
+  it("works in an empty code block", () => {
+    expect(backspace("```\n\n```", 4, exitLeadingCode)).toEqual({ text: "\n```\n\n```", cursor: 0 });
+  });
+
+  it("leaves a later line of the block to the default", () => {
+    expect(backspace("```\nfirst\nsecond\n```", 12, exitLeadingCode)).toBeNull();
+  });
+
+  it("leaves a code block with a line above it to the default", () => {
+    expect(backspace("above\n```\ncode\n```", 11, exitLeadingCode)).toBeNull();
   });
 });

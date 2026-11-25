@@ -142,6 +142,18 @@ const exitTrailingCode: Command = (state, dispatch) => {
   return true;
 };
 
+/** ArrowUp on the first line of a leading code block opens a paragraph above it. */
+export const exitLeadingCode: Command = (state, dispatch) => {
+  const { $from, empty } = state.selection;
+  if (!empty || $from.parent.type !== nodes.code_block || $from.depth !== 1 || $from.index(0) !== 0) return false;
+  if ($from.parent.textBetween(0, $from.parentOffset).includes("\n")) return false;
+  if (dispatch) {
+    const tr = state.tr.insert(0, nodes.paragraph.create());
+    dispatch(tr.setSelection(TextSelection.create(tr.doc, 1)).scrollIntoView());
+  }
+  return true;
+};
+
 const newLine = chainCommands(
   fenceToCodeBlock,
   newlineInCode,
@@ -157,6 +169,7 @@ const keys = keymap({
   // No Shift-Tab: Paseo's mode-cycle shortcut takes it on the window before
   // the editor sees it. Shift+Enter on an empty item takes it out a level.
   Backspace: chainCommands(undoInputRule, clearCodeBlock, listBackspace),
+  ArrowUp: exitLeadingCode,
   ArrowDown: exitTrailingCode,
   ArrowRight: exitTrailingCode,
   "Mod-z": undo,
